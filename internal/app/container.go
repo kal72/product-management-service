@@ -5,7 +5,8 @@ import (
 	"product-management-service/internal/delivery/http/handler"
 	"product-management-service/internal/delivery/http/middleware"
 	"product-management-service/internal/delivery/http/router"
-	"product-management-service/internal/usecase/auth"
+	"product-management-service/internal/repository"
+	"product-management-service/internal/usecase/product"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,26 +14,29 @@ import (
 func Container(fiberApp *fiber.App, cfg *config.Config) {
 	// init infrastruture
 	logger := config.NewLogger(cfg)
-	// db := config.NewDatabase(cfg, logger)
-	// validate := config.NewValidator()
+	db := config.NewDatabase(cfg, logger)
+	validate := config.NewValidator()
 
 	//init  repositories
+	productRepo := repository.NewProductRepository()
 
 	//init  usecases
-	authUsecase := auth.NewAuthUsecase(cfg)
+	productUsecase := product.NewProductUsecase(db, productRepo, validate)
 
 	//init  handler
 	pingHandler := handler.NewPingHandler()
+	productHandler := handler.NewProductHandler(productUsecase)
 
 	//init  middleware
 	loggingMiddleware := middleware.HandleReqLogging(logger)
-	authMiddleware := middleware.HandleAuth(authUsecase)
+	recoveryMiddleware := middleware.HandleRecoveryPanic()
 
 	route := &router.Route{
-		App:            fiberApp,
-		LogMiddleware:  loggingMiddleware,
-		AuthMiddleware: authMiddleware,
-		PingHandler:    pingHandler,
+		App:               fiberApp,
+		RecoverMiddleware: recoveryMiddleware,
+		LogMiddleware:     loggingMiddleware,
+		PingHandler:       pingHandler,
+		ProductHandler:    productHandler,
 	}
 	route.RegisterRoutes()
 }

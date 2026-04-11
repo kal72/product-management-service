@@ -19,7 +19,6 @@ type LogConfig struct {
 }
 
 type RedisConfig struct {
-	Username string
 	Password string
 	Host     string
 	Port     int

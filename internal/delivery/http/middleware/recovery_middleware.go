@@ -25,7 +25,7 @@ func HandleRecoveryPanic() fiber.Handler {
 				}
 
 				// Log ke console
-				log.Printf("[PANIC] %v | %s\n", r, sourceLine)
+				log.Printf("[PANIC] %v | %s\n", r, stack)
 
 				// Response JSON
 				_ = c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
