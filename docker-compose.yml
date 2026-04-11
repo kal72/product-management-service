@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: superindo_db
+      MYSQL_USER: superindo
+      MYSQL_PASSWORD: superindo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:8.6.2-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "redis_pass"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge

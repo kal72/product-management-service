@@ -1,23 +1,34 @@
 {
-    "app":{
-        "name":"product-management-service",
-        "host": "0.0.0.0",
-        "port": 8080
-    },
-    "log":{
-        "path": "./logs/app.log",
-        "stdout": true
-    },
-    "database": {
-        "username": "root",
-        "password": "root",
-        "host": "mysql",
-        "port": 3306,
-        "name": "movies_db",
-        "pool": {
-          "idle": 10,
-          "max": 100,
-          "lifetime": 300
-        }
-      }
+  "app": {
+    "name": "product-management-service",
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+  "log": {
+    "path": "./logs/app.log",
+    "stdout": true
+  },
+  "database": {
+    "username": "superindo",
+    "password": "superindo",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "name": "superindo_db",
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "lifetime": 300
+    }
+  },
+  "redis": {
+    "password": "redis_pass",
+    "host": "localhost",
+    "port": 6379,
+    "db": 0,
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "timeout": 30
+    }
+  }
 }
