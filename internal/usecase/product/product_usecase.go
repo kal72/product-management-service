@@ -8,6 +8,7 @@ import (
 	"product-management-service/internal/model/converter"
 	"product-management-service/internal/repository"
 	"product-management-service/internal/utils/errorhandler"
+	"product-management-service/internal/utils/pagination"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -101,4 +102,16 @@ func (uc *ProductUsecase) GetDetailByID(ctx context.Context, id int) (*model.Pro
 	}
 
 	return converter.ProductDetailToResponse(&product), nil
+}
+
+func (uc *ProductUsecase) List(ctx context.Context, req *model.ProductFilter) ([]model.ProductResponse, *model.PageMetadata, *model.ErrorData) {
+	limit, offset := pagination.CalculateLimitOffset(req.Page, req.Size)
+
+	products, total, err := uc.productRepo.FindWithFilter(uc.db, limit, offset, *req)
+	if err != nil {
+		return nil, nil, errorhandler.ErrorDB(err)
+	}
+
+	pages := pagination.CalculatePage(total, req.Size, req.Page)
+	return converter.ProductListToResponse(products), pages, nil
 }

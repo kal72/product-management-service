@@ -86,3 +86,18 @@ func (h *ProductHandler) GetDetail(ctx *fiber.Ctx) error {
 
 	return response.ResponseSuccess(ctx, product)
 }
+
+func (h *ProductHandler) List(ctx *fiber.Ctx) error {
+	var req model.ProductFilter
+	if err := ctx.QueryParser(&req); err != nil {
+		errData := errorhandler.ErrorInvalidRequest(err)
+		return response.ResponseError(ctx, errData)
+	}
+
+	products, pages, errData := h.usecase.List(ctx.UserContext(), &req)
+	if errData != nil {
+		return response.ResponseError(ctx, errData)
+	}
+
+	return response.ResponseSuccessWithPagination(ctx, products, pages)
+}

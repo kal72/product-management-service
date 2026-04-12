@@ -19,4 +19,5 @@ type ProductDetail struct {
 	Stock        int
 	CategoryID   int
 	CategoryName string
+	CreatedAt    time.Time
 }

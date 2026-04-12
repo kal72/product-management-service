@@ -11,4 +11,5 @@ type ProductUsecaseContract interface {
 	Update(ctx context.Context, id int, req *model.UpdateProductRequest) *model.ErrorData
 	Delete(ctx context.Context, id int) *model.ErrorData
 	GetDetailByID(ctx context.Context, id int) (*model.ProductResponse, *model.ErrorData)
+	List(ctx context.Context, req *model.ProductFilter) ([]model.ProductResponse, *model.PageMetadata, *model.ErrorData)
 }

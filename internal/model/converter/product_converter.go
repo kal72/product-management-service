@@ -22,6 +22,7 @@ func ProductDetailToResponse(product *entity.ProductDetail) *model.ProductRespon
 		Price:        product.Price,
 		Stock:        product.Stock,
 		CategoryName: product.CategoryName,
+		CreatedAt:    product.CreatedAt.Format("2006-01-02 15:04:05"),
 	}
 }
 
@@ -34,6 +35,7 @@ func ProductListToResponse(products []entity.ProductDetail) []model.ProductRespo
 			Price:        product.Price,
 			Stock:        product.Stock,
 			CategoryName: product.CategoryName,
+			CreatedAt:    product.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 	return responses

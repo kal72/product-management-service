@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ResponseSuccess(ctx *fiber.Ctx, data interface{}) error {
+func ResponseSuccess(ctx *fiber.Ctx, data any) error {
 	return ctx.Status(fiber.StatusOK).
 		JSON(model.Response{
 			Status:  constant.SuccessCode,
@@ -17,13 +17,13 @@ func ResponseSuccess(ctx *fiber.Ctx, data interface{}) error {
 		})
 }
 
-func ResponseSuccessWithPaging(ctx *fiber.Ctx, data interface{}, paging model.PageMetadata) error {
+func ResponseSuccessWithPagination(ctx *fiber.Ctx, data any, metadata *model.PageMetadata) error {
 	return ctx.Status(fiber.StatusOK).
 		JSON(model.Response{
 			Status:   constant.SuccessCode,
 			Data:     data,
 			Message:  "Success",
-			Metadata: paging,
+			Metadata: metadata,
 		})
 }
 

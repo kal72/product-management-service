@@ -28,5 +28,6 @@ func (r *Route) RegisterRoutes() {
 	productGroup.Patch("/:id", r.ProductHandler.Update)
 	productGroup.Delete("/:id", r.ProductHandler.Delete)
 	productGroup.Get("/:id", r.ProductHandler.GetDetail)
+	productGroup.Get("/", r.ProductHandler.List)
 
 }

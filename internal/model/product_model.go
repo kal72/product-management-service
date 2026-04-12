@@ -21,4 +21,5 @@ type ProductResponse struct {
 	Stock        int     `json:"stock"`
 	CategoryID   int     `json:"category_id,omitempty"`
 	CategoryName string  `json:"category_name,omitempty"`
+	CreatedAt    string  `json:"created_at"`
 }
