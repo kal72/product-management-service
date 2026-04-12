@@ -88,7 +88,7 @@ func (l *Logger) logMsg(level logrus.Level, msg string, fields logrus.Fields) {
 // 		Info("Finish request")
 // }
 
-func (l *Logger) LogEvent(ctx context.Context, err error, request any, response any) {
+func (l *Logger) LogEvent(ctx context.Context, httpStatus int, err error, request any, response any) {
 	fields, ok := ctx.Value(SessionLogKey).(logrus.Fields)
 	if ok {
 		req, _ := json.Marshal(request)

@@ -16,16 +16,18 @@ func Container(fiberApp *fiber.App, cfg *config.Config) {
 	logger := config.NewLogger(cfg)
 	db := config.NewDatabase(cfg, logger)
 	validate := config.NewValidator()
+	redisClient := config.NewRedis(cfg)
 
 	//init  repositories
 	productRepo := repository.NewProductRepository()
+	redisRepo := repository.NewRedisRepository(redisClient)
 
 	//init  usecases
-	productUsecase := product.NewProductUsecase(db, productRepo, validate)
+	productUsecase := product.NewProductUsecase(db, productRepo, redisRepo, validate)
 
 	//init  handler
 	pingHandler := handler.NewPingHandler()
-	productHandler := handler.NewProductHandler(productUsecase)
+	productHandler := handler.NewProductHandler(productUsecase, logger)
 
 	//init  middleware
 	loggingMiddleware := middleware.HandleReqLogging(logger)

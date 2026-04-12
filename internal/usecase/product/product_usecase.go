@@ -2,6 +2,8 @@ package product
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"product-management-service/internal/entity"
 	"product-management-service/internal/model"
@@ -17,17 +19,20 @@ import (
 type ProductUsecase struct {
 	db          *gorm.DB
 	productRepo *repository.ProductRepository
+	redisRepo   *repository.RedisRepository
 	validator   *validator.Validate
 }
 
 func NewProductUsecase(
 	db *gorm.DB,
 	productRepo *repository.ProductRepository,
+	redisRepo *repository.RedisRepository,
 	validator *validator.Validate,
 ) ProductUsecaseContract {
 	return &ProductUsecase{
 		db:          db,
 		productRepo: productRepo,
+		redisRepo:   redisRepo,
 		validator:   validator,
 	}
 }
@@ -47,6 +52,8 @@ func (uc *ProductUsecase) Create(ctx context.Context, req *model.CreateProductRe
 	if err := uc.productRepo.Create(uc.db, product); err != nil {
 		return nil, errorhandler.ErrorDB(err)
 	}
+
+	_ = uc.redisRepo.DeleteByPrefix(ctx, "product:list:")
 
 	return converter.ProductToResponse(product), nil
 }
@@ -74,6 +81,8 @@ func (uc *ProductUsecase) Update(ctx context.Context, id int, req *model.UpdateP
 		return errorhandler.ErrorDB(err)
 	}
 
+	_ = uc.redisRepo.DeleteByPrefix(ctx, "product:list:")
+
 	return nil
 }
 
@@ -88,6 +97,8 @@ func (uc *ProductUsecase) Delete(ctx context.Context, id int) *model.ErrorData {
 	if err := uc.productRepo.Delete(uc.db, id); err != nil {
 		return errorhandler.ErrorDB(err)
 	}
+
+	_ = uc.redisRepo.DeleteByPrefix(ctx, "product:list:")
 
 	return nil
 }
@@ -105,6 +116,13 @@ func (uc *ProductUsecase) GetDetailByID(ctx context.Context, id int) (*model.Pro
 }
 
 func (uc *ProductUsecase) List(ctx context.Context, req *model.ProductFilter) ([]model.ProductResponse, *model.PageMetadata, *model.ErrorData) {
+	cacheKey := fmt.Sprintf("product:list:s_%s:c_%d:p_%d:sz_%d:sb_%s:so_%s", req.Search, req.CategoryID, req.Page, req.Size, req.SortBy, req.SortOrder)
+	cacheData := model.CacheData[[]model.ProductResponse]{}
+
+	if err := uc.redisRepo.Get(ctx, cacheKey, &cacheData); err == nil {
+		return cacheData.Data, cacheData.Pages, nil
+	}
+
 	limit, offset := pagination.CalculateLimitOffset(req.Page, req.Size)
 
 	products, total, err := uc.productRepo.FindWithFilter(uc.db, limit, offset, *req)
@@ -113,5 +131,14 @@ func (uc *ProductUsecase) List(ctx context.Context, req *model.ProductFilter) ([
 	}
 
 	pages := pagination.CalculatePage(total, req.Size, req.Page)
-	return converter.ProductListToResponse(products), pages, nil
+	productResp := converter.ProductListToResponse(products)
+
+	cacheData = model.CacheData[[]model.ProductResponse]{
+		Data:  productResp,
+		Pages: pages,
+	}
+
+	uc.redisRepo.Set(ctx, cacheKey, cacheData, 5*time.Minute)
+
+	return productResp, pages, nil
 }

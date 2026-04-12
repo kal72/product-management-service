@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"product-management-service/internal/utils/logger"
 
 	"github.com/gofiber/fiber/v2"
@@ -29,7 +30,9 @@ func HandleReqLogging(log *logger.Logger) fiber.Handler {
 			"endpoint":      ctx.OriginalURL(),
 		}
 
-		ctx.Locals(logger.SessionLogKey, logFieldMap)
-		return ctx.Next()
+		ctx.SetUserContext(context.WithValue(ctx.UserContext(), logger.SessionLogKey, logFieldMap))
+		
+		err := ctx.Next()
+		return err
 	}
 }
