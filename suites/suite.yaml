@@ -1,0 +1,59 @@
+baseUrl: http://127.0.0.1:8080
+endpoints:
+  - name: ping-server
+    method: GET
+    path: /ping
+    expectedStatus: 200
+
+  - name: create-product
+    method: POST
+    path: /api/v1/products
+    expectedStatus: 200
+    headers:
+      Content-Type: application/json
+    body:
+      name: "Test Product"
+      price: 150.50
+      stock: 20
+      category_id: 1
+    requiredFields:
+      - name
+      - price
+      - stock
+      - category_id
+    description: "Creates a new product. Price must be > 0. Stock must be >= 0. CategoryID must be > 0."
+
+  - name: get-product-list
+    method: GET
+    path: /api/v1/products
+    expectedStatus: 200
+    queryParams:
+      page: "1"
+      size: "10"
+    description: "List products with pagination. Other optional query params: Search, CategoryID, SortBy, SortOrder."
+
+  - name: get-product-detail
+    method: GET
+    path: /api/v1/products/:id
+    pathParams:
+      id: "1"
+    expectedStatus: 200
+
+  - name: update-product
+    method: PATCH
+    path: /api/v1/products/:id
+    pathParams:
+      id: "1"
+    headers:
+      Content-Type: application/json
+    body:
+      price: 120.00
+      stock: 50
+    expectedStatus: 200
+
+  - name: delete-product
+    method: DELETE
+    path: /api/v1/products/:id
+    pathParams:
+      id: "1"
+    expectedStatus: 200
